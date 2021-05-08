@@ -17,12 +17,21 @@ expo install @react-native-async-storage/async-storage expo-auth-session expo-ra
 Install this library
 
 ```bash
-expo install --save expo-keycloak-auth
+expo install expo-keycloak-auth
 ```
 
 ## Usage
 
 ```jsx
+import React from "react";
+import {
+  Text,
+  View,
+  Button,
+  StyleSheet,
+  ActivityIndicator,
+  TextInput,
+} from "react-native";
 import { KeycloakProvider, useKeycloak } from "expo-keycloak-auth";
 import AppConfig from "./app.json";
 
