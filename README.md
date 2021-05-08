@@ -2,7 +2,9 @@
 
 > expo-auth-session wrapper for keycloak
 
-[![NPM](https://img.shields.io/npm/v/expo-keycloak-auth.svg)](https://www.npmjs.com/package/expo-keycloak-auth) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
+This library based on [balgamat/expo-keycloak](https://www.npmjs.com/package/expo-keycloak) written in Javascript with re-implementation of automatic token refresh handling.
+
+[![NPM](https://img.shields.io/npm/v/expo-keycloak-auth.svg)](https://www.npmjs.com/package/expo-keycloak-auth) [
 
 ## Install
 
@@ -43,19 +45,18 @@ export default function App() {
 
 export const Auth = () => {
   const {
-    ready, // If the discovery is already fetched
+    ready, // If the discovery is already fetched and ready to prompt authentication flow
     login, // The login function - opens the browser
     isLoggedIn, // Helper boolean to use e.g. in your components down the tree
     token, // Access token, if available
-    logout, // Logs the user out
+    logout, // The logout function - Logs the user out
   } = useKeycloak();
   if (!ready) return <ActivityIndicator />;
 
   if (!isLoggedIn)
     return (
       <View style={{ margin: 24 }}>
-        <Button title="get To" onPress={getToken} />
-        <Button onPress={login} title={"Login"} />
+        <Button onPress={login} title="Login" />
       </View>
     );
 
@@ -77,6 +78,21 @@ const styles = StyleSheet.create({
   },
 });
 ```
+
+## Configuration
+
+Pass this configuration to `KeycloakProvider` as props:
+
+| Props Name                   | Usage        | Default        | Description                                                                                                                                                                  |
+| ---------------------------- | ------------ | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| clientId (string)            | **required** |                | One of your keycloak clientId                                                                                                                                                |
+| realm (string)               | **required** |                | One of your keycloak realm name                                                                                                                                              |
+| url (string)                 | **required** |                | Your keycloak url. This is usually an url ending with /auth. This props (with realm) used to generate url `${url}/realms/${realm}` for expo `AuthSession.useAutoDiscovery()` |
+| scheme (string)              | optional     |                | Your app scheme defined in `app.json`. This props used to generate redirect uri scheme for standalone app. `default redirect_uri = ${scheme}://redirect/auth`                |
+| disableAutoRefresh (boolean) | optional     | false          |                                                                                                                                                                              |
+| nativeRedirectPath (string)  | optional     | undefined      | Path to overrides default redirect path                                                                                                                                      |
+| refreshTimeBuffer (number)   | optional     | 20             | time buffer in second to invoke `AuthSession.refreshAsync()` before token expires.                                                                                           |
+| tokenStorageKey (string)     | optional     | keycloak_token | AsyncStorage key to save your token responses.                                                                                                                               |
 
 ## License
 
