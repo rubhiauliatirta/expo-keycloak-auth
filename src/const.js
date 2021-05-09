@@ -6,5 +6,5 @@ export const KC_INITIAL_VALUE = {
   tokens: null,
 };
 export const NATIVE_REDIRECT_PATH = 'auth/redirect';
-export const TOKEN_STORAGE_KEY = '$KEYCLOAK_AUTH_TOKEN$';
+export const TOKEN_STORAGE_KEY = 'keycloak_token';
 export const REFRESH_TIME_BUFFER = 20;
