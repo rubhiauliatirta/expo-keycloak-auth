@@ -4,7 +4,7 @@
 
 This library based on [balgamat/expo-keycloak](https://www.npmjs.com/package/expo-keycloak) written in Javascript with re-implementation of automatic token refresh handling.
 
-[![NPM](https://img.shields.io/npm/v/expo-keycloak-auth.svg)](https://www.npmjs.com/package/expo-keycloak-auth) [
+[![NPM](https://img.shields.io/npm/v/expo-keycloak-auth.svg)](https://www.npmjs.com/package/expo-keycloak-auth)
 
 ## Install
 
