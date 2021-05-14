@@ -3,7 +3,7 @@ import { KeycloakContext } from './KeycloakContext';
 
 export const useKeycloak = () => {
   const {
-    isLoggedIn = false,
+    isLoggedIn,
     login,
     logout,
     ready = false,

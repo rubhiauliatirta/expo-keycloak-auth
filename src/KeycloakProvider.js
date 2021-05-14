@@ -68,7 +68,7 @@ export const KeycloakProvider = ({ realm, clientId, url, children, ...options })
   return (
     <KeycloakContext.Provider
       value={{
-        isLoggedIn: !!currentToken,
+        isLoggedIn: currentToken === undefined ? undefined : !!currentToken,
         login: handleLogin,
         logout: handleLogout,
         ready: discovery !== null && request !== null && currentToken !== undefined,
