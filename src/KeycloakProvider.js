@@ -23,7 +23,7 @@ import {
 // }
 
 
-export const KeycloakProvider = ({ realm, clientId, url, children, ...options }) => {
+export const KeycloakProvider = ({ realm, clientId, url, extraParams, children, ...options }) => {
 
   const discovery = useAutoDiscovery(getRealmURL({ realm, url }));
   const redirectUri = AuthSession.makeRedirectUri({
@@ -31,7 +31,7 @@ export const KeycloakProvider = ({ realm, clientId, url, children, ...options })
     useProxy: !options.scheme,
   });
 
-  const config = { redirectUri, clientId, realm, url }
+  const config = { redirectUri, clientId, realm, url, extraParams }
 
   const [request, response, promptAsync] = useAuthRequest(
     { usePKCE: false, ...config },

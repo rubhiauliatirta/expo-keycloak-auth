@@ -102,6 +102,7 @@ Pass this configuration to `KeycloakProvider` as props:
 | nativeRedirectPath (string)  | optional     | undefined      | Path to override default redirect path                                                                                                                                      |
 | refreshTimeBuffer (number)   | optional     | 20             | time buffer in seconds to invoke `AuthSession.refreshAsync()` before token expires.                                                                                         |
 | tokenStorageKey (string)     | optional     | keycloak_token | AsyncStorage key to save your token responses.                                                                                                                              |
+| extraParams (object)         | optional     | undefined      | Extra query params that'll be added to the query string                                                                                                                     |
 
 ## License
 
