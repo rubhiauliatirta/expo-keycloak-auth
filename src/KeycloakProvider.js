@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { Platform } from 'react-native'
 import * as AuthSession from 'expo-auth-session';
 import {
   useAuthRequest,
@@ -51,7 +52,9 @@ export const KeycloakProvider = ({ realm, clientId, url, extraParams, children, 
           { token: currentToken?.accessToken, ...config }, discovery
         )
       }
-      AuthSession.dismiss();
+
+      Platform.OS === 'ios' && AuthSession.dismiss();
+
     } catch (error) {
       console.log(error)
     }
