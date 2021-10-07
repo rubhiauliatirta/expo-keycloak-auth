@@ -104,6 +104,8 @@ Pass this configuration to `KeycloakProvider` as props:
 | tokenStorageKey (string)     | optional     | keycloak_token | AsyncStorage key to save your token responses.                                                                                                                              |
 | extraParams (object)         | optional     | undefined      | Extra query params that'll be added to the query string                                                                                                                     |
 
+> NOTE: You must add the scheme value to your valid redirect URLs on Keycloak admin console. It has to be like: `${scheme}://*` being ${scheme} the current selected value from AppConfig.
+
 ## License
 
 MIT © [rubhiauliatirta](https://github.com/rubhiauliatirta)
