@@ -10,14 +10,11 @@ export const useKeycloak = () => {
     token = null,
   } = useContext(KeycloakContext);
 
-  return useMemo(
-    () => ({
-      isLoggedIn,
-      login,
-      logout,
-      ready,
-      token: token?.accessToken ?? null
-    }),
-    [ready, token, isLoggedIn],
-  );
-};
+  return {
+    isLoggedIn,
+    login,
+    logout,
+    ready,
+    token: token?.accessToken ?? null
+  }
+}
