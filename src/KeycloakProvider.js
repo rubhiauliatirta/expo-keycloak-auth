@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { Platform } from 'react-native'
 import * as AuthSession from 'expo-auth-session';
 import {
@@ -40,9 +40,9 @@ export const KeycloakProvider = ({ realm, clientId, url, extraParams, children, 
   );
   const [currentToken, updateToken] = useTokenStorage(options, config, discovery)
 
-  const handleLogin = async (options) => {
+  const handleLogin = useCallback((options) => {
     return promptAsync(options);
-  }
+  }, [request])
 
   const handleLogout = () => {
     if (!currentToken) throw new Error('Not logged in.');
@@ -52,13 +52,21 @@ export const KeycloakProvider = ({ realm, clientId, url, extraParams, children, 
           { token: currentToken?.accessToken, ...config }, discovery
         )
       }
-
-      Platform.OS === 'ios' && AuthSession.dismiss();
-
+      if(discovery.endSessionEndpoint) {
+        fetch(`${discovery.endSessionEndpoint}`, {
+          method: 'POST',         
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: `client_id=${clientId}&refresh_token=${currentToken.refreshToken}`
+        })
+      }
+      if(Platform.OS === 'ios') {
+        AuthSession.dismiss();
+      }
     } catch (error) {
       console.log(error)
     }
-
     updateToken(null)
   }
   useEffect(() => {
