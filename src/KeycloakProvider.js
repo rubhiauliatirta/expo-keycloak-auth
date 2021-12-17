@@ -11,7 +11,9 @@ import { handleTokenExchange, getRealmURL } from './helpers';
 import {
   NATIVE_REDIRECT_PATH,
 } from './const';
+import * as WebBrowser from 'expo-web-browser';
 
+WebBrowser.maybeCompleteAuthSession();
 // export interface IKeycloakConfiguration extends Partial<AuthRequestConfig> {
 //   clientId: string;
 //   disableAutoRefresh?: boolean;
@@ -40,8 +42,8 @@ export const KeycloakProvider = ({ realm, clientId, url, extraParams, children, 
   );
   const [currentToken, updateToken] = useTokenStorage(options, config, discovery)
 
-  const handleLogin = useCallback((options) => {
-    return promptAsync(options);
+  const handleLogin = useCallback((handler) => {
+    return promptAsync();
   }, [request])
 
   const handleLogout = () => {
@@ -54,7 +56,7 @@ export const KeycloakProvider = ({ realm, clientId, url, extraParams, children, 
       }
       if(discovery.endSessionEndpoint) {
         fetch(`${discovery.endSessionEndpoint}`, {
-          method: 'POST',         
+          method: 'POST',
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
           },
