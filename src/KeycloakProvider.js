@@ -78,7 +78,14 @@ export const KeycloakProvider = ({ realm, clientId, url, extraParams, children, 
         .then(updateToken)
     }
   }, [response])
-
+  const parseToken = (token) => {
+    try {
+      if(token) {
+        return JSON.parse(atob(token).split(".")[1]);
+      }
+    }catch(e) {
+    }
+  }
   return (
     <KeycloakContext.Provider
       value={{
@@ -87,7 +94,7 @@ export const KeycloakProvider = ({ realm, clientId, url, extraParams, children, 
         logout: handleLogout,
         ready: discovery !== null && request !== null && currentToken !== undefined,
         token: currentToken,
-        tokenParsed: jwt_decode(currentToken)
+        tokenParsed: parseToken(currentToken)
       }}
     >
       {children}

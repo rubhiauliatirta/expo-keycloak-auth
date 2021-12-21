@@ -1,6 +1,6 @@
 {
   "name": "expo-keycloak-auth",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "description": "expo-auth-session wrapper for keycloak authentication",
   "author": "rubhiauliatirtacom",
   "license": "MIT",
@@ -18,7 +18,7 @@
     "expo-yarn-workspaces": "^1.2.1"
   },
   "dependencies": {
-    "jwt-decode": "^3.1.2"
+    "atob": "^2.1.2"
   },
   "peerDependencies": {
     "@react-native-async-storage/async-storage": "^1.15.4",
