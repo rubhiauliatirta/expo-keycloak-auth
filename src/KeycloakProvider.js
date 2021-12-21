@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect } from 'react';
 import { Platform } from 'react-native'
-import jwt_decode from 'jwt-decode';
+
 import * as AuthSession from 'expo-auth-session';
 import {
   useAuthRequest,
@@ -81,7 +81,12 @@ export const KeycloakProvider = ({ realm, clientId, url, extraParams, children, 
   const parseToken = (token) => {
     try {
       if(token) {
-        return JSON.parse(atob(token).split(".")[1]);
+        const ss = typeof window === "undefined";
+        if(ss) {
+          return JSON.parse(Buffer.from(token).toString('base64'));
+        } else {
+          return JSON.parse(atob(token).split(".")[1]);
+        }
       }
     }catch(e) {
     }
