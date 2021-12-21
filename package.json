@@ -17,6 +17,9 @@
   "devDependencies": {
     "expo-yarn-workspaces": "^1.2.1"
   },
+  "dependencies": {
+    "jwt-decode": "^3.1.2"
+  },
   "peerDependencies": {
     "@react-native-async-storage/async-storage": "^1.15.4",
     "expo": "^41.0.0",

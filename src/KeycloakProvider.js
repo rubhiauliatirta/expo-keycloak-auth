@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect } from 'react';
 import { Platform } from 'react-native'
+import jwt_decode from 'jwt-decode';
 import * as AuthSession from 'expo-auth-session';
 import {
   useAuthRequest,
@@ -86,6 +87,7 @@ export const KeycloakProvider = ({ realm, clientId, url, extraParams, children, 
         logout: handleLogout,
         ready: discovery !== null && request !== null && currentToken !== undefined,
         token: currentToken,
+        tokenParsed: jwt_decode(currentToken)
       }}
     >
       {children}
