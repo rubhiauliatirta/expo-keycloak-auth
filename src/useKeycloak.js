@@ -1,17 +1,12 @@
 import { useContext, useMemo } from 'react';
 import { KeycloakContext } from './KeycloakContext';
+import atob from "./atob"
 const parseToken = (token) => {
   try {
     if(token) {
       let splitted = token.split(".")[1];
-      if(typeof Buffer !== "undefined") {
-        let decoded = Buffer.from(splitted,'base64').toString();
-        return JSON.parse(decoded);
-      } else {
-
-        let decoded = window.atob(unescape(encodeURIComponent( splitted ))).toString()
-        return JSON.parse(decoded);
-      }
+      let decoded = atob(unescape(encodeURIComponent( splitted ))).toString()
+      return JSON.parse(decoded);
     }
   }catch(e) {
     console.error(e)
