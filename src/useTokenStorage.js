@@ -26,6 +26,9 @@ const useTokenStorage = ({
         const stringifiedValue = JSON.stringify(newToken);
         await setItem(stringifiedValue)
       } else {
+        if (refreshHandler.current !== null) {
+          clearTimeout(refreshHandler.current)
+        }
         await removeItem()
       }
     } catch (error) {
@@ -34,16 +37,18 @@ const useTokenStorage = ({
   }
 
   const handleTokenRefresh = (token) => {
-    AuthSession.refreshAsync(
-      { refreshToken: token.refreshToken, ...config },
-      discovery
-    )
-      .then((tokenResponse) => {
-        updateAndSaveToken(tokenResponse)
-      })
-      .catch(err => {
-        updateAndSaveToken(null)
-      })
+    if(token) {
+      AuthSession.refreshAsync(
+          {refreshToken: token.refreshToken, ...config},
+          discovery
+      )
+          .then((tokenResponse) => {
+            updateAndSaveToken(tokenResponse)
+          })
+          .catch(err => {
+            updateAndSaveToken(null)
+          })
+    }
   }
 
   useEffect(() => {
