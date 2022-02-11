@@ -47,7 +47,12 @@ const useTokenStorage = ({
           })
           .catch(err => {
             console.error(err)
-            updateAndSaveToken(null)
+            if (refreshHandler.current !== null) {
+              clearTimeout(refreshHandler.current)
+            }
+            refreshHandler.current = setTimeout(() => {
+              handleTokenRefresh(tokenData.current)
+            }, 5000)
           })
     }
   }
