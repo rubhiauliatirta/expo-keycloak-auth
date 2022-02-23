@@ -7,7 +7,6 @@ import * as AuthSession from "expo-auth-session";
 import { TokenResponse } from "expo-auth-session";
 
 const useTokenStorage = ({
-                           useAutoDiscovery = false,
                            tokenStorageKey = TOKEN_STORAGE_KEY,
                            refreshTimeBuffer = REFRESH_TIME_BUFFER,
                            disableAutoRefresh = false
@@ -67,14 +66,12 @@ const useTokenStorage = ({
           clearTimeout(refreshHandler.current)
           const now = getCurrentTimeInSeconds()
 
-          if (refreshTime.current <= now) {
-            setToken(null)
-          } else {
+
             const timeout = 1000 * (refreshTime.current - now)
             refreshHandler.current = setTimeout(() => {
               handleTokenRefresh(tokenData.current)
             }, timeout)
-          }
+
         }
       }
       appState.current = nextAppState;
@@ -88,7 +85,7 @@ const useTokenStorage = ({
         AppState.removeEventListener("change", handleAppState)
       }
     };
-  }, [discovery]);
+  }, []);
 
   useEffect(() => {
     async function getTokenFromStorage() {
@@ -107,7 +104,7 @@ const useTokenStorage = ({
         setToken(null)
       }
     }
-    if (!!discovery && !useAutoDiscovery) getTokenFromStorage()
+    if (!!discovery) getTokenFromStorage()
   }, [discovery]);
 
   useEffect(() => {
@@ -136,7 +133,7 @@ const useTokenStorage = ({
         tokenData.current = null
       }
     }
-  }, [token, discovery])
+  }, [token])
 
 
   return [token, updateAndSaveToken];
