@@ -98,6 +98,7 @@ const useTokenStorage = ({
           }
         }
       } catch (error) {
+        console.error(error);
         setToken(null)
       }
     }
