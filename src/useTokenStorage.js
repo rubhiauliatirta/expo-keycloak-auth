@@ -11,6 +11,7 @@ const useTokenStorage = ({
                            refreshTimeBuffer = REFRESH_TIME_BUFFER,
                            disableAutoRefresh = false
                          }, config, discovery) => {
+
   const [token, setToken] = useState(null)
   const { getItem, setItem, removeItem } = useAsyncStorage(tokenStorageKey);
   const refreshHandler = useRef(null)
@@ -25,9 +26,6 @@ const useTokenStorage = ({
         const stringifiedValue = JSON.stringify(newToken);
         await setItem(stringifiedValue)
       } else {
-        if (refreshHandler.current !== null) {
-          clearTimeout(refreshHandler.current)
-        }
         await removeItem()
       }
     } catch (error) {
@@ -36,42 +34,36 @@ const useTokenStorage = ({
   }
 
   const handleTokenRefresh = (token) => {
-    if(token) {
-      AuthSession.refreshAsync(
-          {refreshToken: token.refreshToken, ...config},
-          discovery
-      )
-          .then((tokenResponse) => {
-            updateAndSaveToken(tokenResponse)
-          })
-          .catch(err => {
-            console.error(err)
-            if (refreshHandler.current !== null) {
-              clearTimeout(refreshHandler.current)
-            }
-            refreshHandler.current = setTimeout(() => {
-              handleTokenRefresh(tokenData.current)
-            }, 5000)
-          })
-    }
+    AuthSession.refreshAsync(
+        { refreshToken: token.refreshToken, ...config },
+        discovery
+    )
+        .then((tokenResponse) => {
+          updateAndSaveToken(tokenResponse)
+        })
+        .catch(err => {
+          updateAndSaveToken(null)
+        })
   }
 
   useEffect(() => {
     const handleAppState = nextAppState => {
       if (
-        appState.current.match(/inactive|background/) &&
-        nextAppState === "active"
+          appState.current.match(/inactive|background/) &&
+          nextAppState === "active"
       ) {
         if (refreshHandler.current !== null) {
           clearTimeout(refreshHandler.current)
           const now = getCurrentTimeInSeconds()
 
-
+          if (refreshTime.current <= now) {
+            setToken(null)
+          } else {
             const timeout = 1000 * (refreshTime.current - now)
             refreshHandler.current = setTimeout(() => {
               handleTokenRefresh(tokenData.current)
             }, timeout)
-
+          }
         }
       }
       appState.current = nextAppState;
@@ -126,7 +118,7 @@ const useTokenStorage = ({
       }
       if (token === null && tokenData.current !== null) {
         AuthSession.revokeAsync(
-          { token: tokenData.current?.accessToken, ...config }, discovery
+            { token: tokenData.current?.accessToken, ...config }, discovery
         )
         Platform.OS === 'ios' && AuthSession.dismiss();
         refreshTime.current = null
