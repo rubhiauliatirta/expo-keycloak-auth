@@ -26,6 +26,10 @@ const useTokenStorage = ({
         const stringifiedValue = JSON.stringify(newToken);
         await setItem(stringifiedValue)
       } else {
+        if(refreshHandler.current) {
+          clearTimeout(refreshHandler.current)
+        }
+        refreshHandler.current = null;
         await removeItem()
       }
     } catch (error) {
