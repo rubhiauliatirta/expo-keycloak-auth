@@ -55,15 +55,10 @@ const useTokenStorage = ({
         if (refreshHandler.current !== null) {
           clearTimeout(refreshHandler.current)
           const now = getCurrentTimeInSeconds()
-
-          if (refreshTime.current <= now) {
-            setToken(null)
-          } else {
-            const timeout = 1000 * (refreshTime.current - now)
-            refreshHandler.current = setTimeout(() => {
-              handleTokenRefresh(tokenData.current)
-            }, timeout)
-          }
+          const timeout = 1000 * (refreshTime.current - now)
+          refreshHandler.current = setTimeout(() => {
+            handleTokenRefresh(tokenData.current)
+          }, timeout)
         }
       }
       appState.current = nextAppState;
@@ -77,20 +72,21 @@ const useTokenStorage = ({
         AppState.removeEventListener("change", handleAppState)
       }
     };
-  }, []);
+  }, [discovery]);
 
   useEffect(() => {
     async function getTokenFromStorage() {
       try {
         const tokenFromStorage = await getItem()
         if (!tokenFromStorage) {
-          throw new Error("No token in storage")
-        }
-        const token = JSON.parse(tokenFromStorage)
-        if (!TokenResponse.isTokenFresh(token, -refreshTimeBuffer)) {
-          handleTokenRefresh(token)
+          console.info("No token in storage")
         } else {
-          setToken(token)
+          const token = JSON.parse(tokenFromStorage)
+          if (!TokenResponse.isTokenFresh(token, -refreshTimeBuffer)) {
+            handleTokenRefresh(token)
+          } else {
+            setToken(token)
+          }
         }
       } catch (error) {
         setToken(null)
@@ -125,7 +121,7 @@ const useTokenStorage = ({
         tokenData.current = null
       }
     }
-  }, [token])
+  }, [token, discovery])
 
 
   return [token, updateAndSaveToken];
