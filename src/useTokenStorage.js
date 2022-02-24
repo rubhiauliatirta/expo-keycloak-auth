@@ -42,6 +42,7 @@ const useTokenStorage = ({
           updateAndSaveToken(tokenResponse)
         })
         .catch(err => {
+          console.debug(err);
           updateAndSaveToken(null)
         })
   }
