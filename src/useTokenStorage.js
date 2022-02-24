@@ -62,7 +62,11 @@ const useTokenStorage = ({
           const now = getCurrentTimeInSeconds()
           const timeout = 1000 * (refreshTime.current - now)
           refreshHandler.current = setTimeout(() => {
-            handleTokenRefresh(tokenData.current)
+            if(tokenData.current !== null) {
+              handleTokenRefresh(tokenData.current)
+            } else {
+              console.debug("token was reset");
+            }
           }, timeout)
         }
       }
