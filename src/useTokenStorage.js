@@ -12,7 +12,7 @@ const useTokenStorage = ({
                            disableAutoRefresh = false
                          }, config, discovery) => {
 
-  const [token, setToken] = useState(null)
+  const [token, setToken] = useState()
   const { getItem, setItem, removeItem } = useAsyncStorage(tokenStorageKey);
   const refreshHandler = useRef(null)
   const appState = useRef(AppState.currentState);
@@ -87,8 +87,9 @@ const useTokenStorage = ({
     async function getTokenFromStorage() {
       try {
         const tokenFromStorage = await getItem()
-        if (!tokenFromStorage) {
+        if (!tokenFromStorage && !tokenData.current) {
           console.info("No token in storage")
+          setToken(null);
         } else {
           const token = JSON.parse(tokenFromStorage)
           if (!TokenResponse.isTokenFresh(token, -refreshTimeBuffer)) {
