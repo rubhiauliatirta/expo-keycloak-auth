@@ -26,7 +26,7 @@ WebBrowser.maybeCompleteAuthSession();
 // }
 
 
-export const KeycloakProvider = ({ realm, clientId, url, extraParams, children, ...options }) => {
+export const KeycloakProvider = ({ realm, clientId, url, extraParams, children,scopes=["openid","profile","email"],  ...options }) => {
 
   const discovery = useAutoDiscovery(getRealmURL({ realm, url }));
   const redirectUri = AuthSession.makeRedirectUri({
@@ -34,7 +34,7 @@ export const KeycloakProvider = ({ realm, clientId, url, extraParams, children, 
     useProxy: !options.scheme,
   });
 
-  const config = { redirectUri, clientId, realm, url, extraParams }
+  const config = { redirectUri, clientId, realm, url, extraParams, scopes }
 
   const [request, response, promptAsync] = useAuthRequest(
     { usePKCE: false, ...config },
