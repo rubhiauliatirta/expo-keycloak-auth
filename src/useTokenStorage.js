@@ -43,11 +43,18 @@ const useTokenStorage = ({
         discovery
     )
         .then((tokenResponse) => {
-          updateAndSaveToken(tokenResponse)
+          return updateAndSaveToken(tokenResponse)
         })
         .catch(err => {
-          console.debug(err);
-          updateAndSaveToken(null)
+          if(err.message === "Network request failed" || err.message === "Failed to fetch") {
+            console.debug("Cannot contact auth server, retrying!")
+            if (refreshHandler.current)
+              clearTimeout(refreshHandler.current);
+            refreshHandler.current = setTimeout(() => handleTokenRefresh(token), 2000)
+          } else {
+            console.debug(err)
+            updateAndSaveToken(null)
+          }
         })
   }
 
