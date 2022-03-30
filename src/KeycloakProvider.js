@@ -11,7 +11,9 @@ import { handleTokenExchange, getRealmURL } from './helpers';
 import {
   NATIVE_REDIRECT_PATH,
 } from './const';
+import * as WebBrowser from 'expo-web-browser';
 
+WebBrowser.maybeCompleteAuthSession();
 // export interface IKeycloakConfiguration extends Partial<AuthRequestConfig> {
 //   clientId: string;
 //   disableAutoRefresh?: boolean;
@@ -24,7 +26,7 @@ import {
 // }
 
 
-export const KeycloakProvider = ({ realm, clientId, url, extraParams, children, ...options }) => {
+export const KeycloakProvider = ({ realm, clientId, url, extraParams, children,scopes=["openid","profile","email"],  ...options }) => {
 
   const discovery = useAutoDiscovery(getRealmURL({ realm, url }));
   const redirectUri = AuthSession.makeRedirectUri({
@@ -32,7 +34,7 @@ export const KeycloakProvider = ({ realm, clientId, url, extraParams, children, 
     useProxy: !options.scheme,
   });
 
-  const config = { redirectUri, clientId, realm, url, extraParams }
+  const config = { redirectUri, clientId, realm, url, extraParams, scopes }
 
   const [request, response, promptAsync] = useAuthRequest(
     { usePKCE: false, ...config },
@@ -40,8 +42,8 @@ export const KeycloakProvider = ({ realm, clientId, url, extraParams, children, 
   );
   const [currentToken, updateToken] = useTokenStorage(options, config, discovery)
 
-  const handleLogin = useCallback((options) => {
-    return promptAsync(options);
+  const handleLogin = useCallback((handler) => {
+    return promptAsync();
   }, [request])
 
   const handleLogout = () => {
@@ -54,7 +56,7 @@ export const KeycloakProvider = ({ realm, clientId, url, extraParams, children, 
       }
       if(discovery.endSessionEndpoint) {
         fetch(`${discovery.endSessionEndpoint}`, {
-          method: 'POST',         
+          method: 'POST',
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
           },
@@ -83,7 +85,7 @@ export const KeycloakProvider = ({ realm, clientId, url, extraParams, children, 
         login: handleLogin,
         logout: handleLogout,
         ready: discovery !== null && request !== null && currentToken !== undefined,
-        token: currentToken,
+        token: currentToken
       }}
     >
       {children}

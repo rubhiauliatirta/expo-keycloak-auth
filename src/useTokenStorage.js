@@ -7,10 +7,10 @@ import * as AuthSession from "expo-auth-session";
 import { TokenResponse } from "expo-auth-session";
 
 const useTokenStorage = ({
-  tokenStorageKey = TOKEN_STORAGE_KEY,
-  refreshTimeBuffer = REFRESH_TIME_BUFFER,
-  disableAutoRefresh = false
-}, config, discovery) => {
+                           tokenStorageKey = TOKEN_STORAGE_KEY,
+                           refreshTimeBuffer = REFRESH_TIME_BUFFER,
+                           disableAutoRefresh = false
+                         }, config, discovery) => {
 
   const [token, setToken] = useState()
   const { getItem, setItem, removeItem } = useAsyncStorage(tokenStorageKey);
@@ -26,6 +26,10 @@ const useTokenStorage = ({
         const stringifiedValue = JSON.stringify(newToken);
         await setItem(stringifiedValue)
       } else {
+        if(refreshHandler.current) {
+          clearTimeout(refreshHandler.current)
+        }
+        refreshHandler.current = null;
         await removeItem()
       }
     } catch (error) {
@@ -35,35 +39,42 @@ const useTokenStorage = ({
 
   const handleTokenRefresh = (token) => {
     AuthSession.refreshAsync(
-      { refreshToken: token.refreshToken, ...config },
-      discovery
+        { refreshToken: token.refreshToken, ...config },
+        discovery
     )
-      .then((tokenResponse) => {
-        updateAndSaveToken(tokenResponse)
-      })
-      .catch(err => {
-        updateAndSaveToken(null)
-      })
+        .then((tokenResponse) => {
+          return updateAndSaveToken(tokenResponse)
+        })
+        .catch(err => {
+          if(err.message === "Network request failed" || err.message === "Failed to fetch") {
+            console.debug("Cannot contact auth server, retrying!")
+            if (refreshHandler.current)
+              clearTimeout(refreshHandler.current);
+            refreshHandler.current = setTimeout(() => handleTokenRefresh(token), 2000)
+          } else {
+            console.debug(err)
+            updateAndSaveToken(null)
+          }
+        })
   }
 
   useEffect(() => {
     const handleAppState = nextAppState => {
       if (
-        appState.current.match(/inactive|background/) &&
-        nextAppState === "active"
+          appState.current.match(/inactive|background/) &&
+          nextAppState === "active"
       ) {
         if (refreshHandler.current !== null) {
           clearTimeout(refreshHandler.current)
           const now = getCurrentTimeInSeconds()
-
-          if (refreshTime.current <= now) {
-            setToken(null)
-          } else {
-            const timeout = 1000 * (refreshTime.current - now)
-            refreshHandler.current = setTimeout(() => {
+          const timeout = 1000 * (refreshTime.current - now)
+          refreshHandler.current = setTimeout(() => {
+            if(tokenData.current !== null) {
               handleTokenRefresh(tokenData.current)
-            }, timeout)
-          }
+            } else {
+              console.debug("token was reset");
+            }
+          }, timeout)
         }
       }
       appState.current = nextAppState;
@@ -77,22 +88,25 @@ const useTokenStorage = ({
         AppState.removeEventListener("change", handleAppState)
       }
     };
-  }, []);
+  }, [discovery]);
 
   useEffect(() => {
     async function getTokenFromStorage() {
       try {
         const tokenFromStorage = await getItem()
-        if (!tokenFromStorage) {
-          throw new Error("No token in storage")
-        }
-        const token = JSON.parse(tokenFromStorage)
-        if (!TokenResponse.isTokenFresh(token, -refreshTimeBuffer)) {
-          handleTokenRefresh(token)
+        if (!tokenFromStorage && !tokenData.current) {
+          console.info("No token in storage")
+          setToken(null);
         } else {
-          setToken(token)
+          const token = JSON.parse(tokenFromStorage)
+          if (!TokenResponse.isTokenFresh(token, -refreshTimeBuffer)) {
+            handleTokenRefresh(token)
+          } else {
+            setToken(token)
+          }
         }
       } catch (error) {
+        console.error(error);
         setToken(null)
       }
     }
@@ -118,14 +132,14 @@ const useTokenStorage = ({
       }
       if (token === null && tokenData.current !== null) {
         AuthSession.revokeAsync(
-          { token: tokenData.current?.accessToken, ...config }, discovery
+            { token: tokenData.current?.accessToken, ...config }, discovery
         )
         Platform.OS === 'ios' && AuthSession.dismiss();
         refreshTime.current = null
         tokenData.current = null
       }
     }
-  }, [token])
+  }, [token, discovery])
 
 
   return [token, updateAndSaveToken];
